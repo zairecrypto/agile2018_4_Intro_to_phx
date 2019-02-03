@@ -24,4 +24,3 @@ To add fields to an existing db / to create a changeset
         * lib/afrotouch/accounts/user.ex -> user table schema + user changeset
         * priv/repo/migrations/...create_users.exs -> table migration where you
           can add additional table fields
-                
