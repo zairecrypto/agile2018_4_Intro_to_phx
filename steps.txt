@@ -1,0 +1,27 @@
+To generate MVC
+    mix phx.gen.html Account User users name username password
+    - 1 folder is created under lib/account with 2 files:
+        * account.ex -> user CRUD functions
+        * user.ex    -> user table schema + user changeset
+    - user_controlker.ex under lib/controller with related CRUD controller
+    - all veiws as per CRUD
+
+To reinit
+    mix ecto.drop
+    mix ecto.create
+    mix ecto.migrate
+
+To reset db
+    
+    mix ecto.reset
+
+To execute the seed
+    mix ecto.setup
+
+To add fields to an existing db / to create a changeset
+    mix phx.gen.schema Accounts.User users name
+    - will create 3 files:
+        * lib/afrotouch/accounts/user.ex -> user table schema + user changeset
+        * priv/repo/migrations/...create_users.exs -> table migration where you
+          can add additional table fields
+                

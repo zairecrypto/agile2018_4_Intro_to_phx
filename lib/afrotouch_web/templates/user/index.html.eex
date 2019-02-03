@@ -1,0 +1,9 @@
+<h1>Users</h1>
+
+<ol>
+<%= for user <- @users do %>
+  <li><%= user.name %> |
+      <%= user.username %> | 
+  <%= user.password %></li>
+<% end %>
+</ol>
