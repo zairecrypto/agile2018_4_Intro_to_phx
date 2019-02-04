@@ -18,11 +18,12 @@ defmodule AfrotouchWeb.Router do
 
     get "/", PageController, :index
     resources "/users", UserController
+    
   end
 
   # Other scopes may use custom stacks.
-  scope "/api", AfrotouchWeb do
-    pipe_through :api
-    post "/bookings", BookingAPIController, :create
-  end
+  # scope "/api", AfrotouchWeb do
+  #   pipe_through :api
+  #   post "/api/bookings", BookingAPIController, :create
+  # end
 end

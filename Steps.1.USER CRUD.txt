@@ -1,0 +1,167 @@
+-----------CREATE NEW USER:
+
+1. Phoenix.HTML.Form.form_for/4 : generates the HTML code for a form
+  ==> create a form for the changeset associated to a user
+  ==> https://hexdocs.pm/phoenix_html/Phoenix.HTML.Form.html
+
+  <%= form_for @changeset, user_path(@conn, :create), fn user -> %>
+    <div class="form-group">
+      <%= label user, :name, class: "control-label" %>
+      <%= text_input user, :name, class: "form-control" %>
+    </div>
+
+    ...
+  <% end %>
+
+  - @changeset: 
+      in the beginning, the changeset is empty 
+      if invalid values need to be corrected, it includes some changes
+  - user_path(@conn, :create):
+      return the URL to be for activating the action :create.
+  - The third parameter (not used here): []
+      configuration options. 
+  - anonymous function: fn user -> user.something end 
+      only parameter is the changeset. 
+
+2. Phoenix.HTML.Form.label/3 : generates HTML for a label/text_input on the form. 
+  <%= text_input user, :name, class: "form-control" %>
+  <%= label user, :name, class: "control-label" %>
+  
+  - reference to user and :name. 
+  - Phoenix store the values captured by the form in a JSON string format : {user:{"name": "...", "username": ...}}.
+  - click submit button: reach the action UserController.create/2, which will handle the HTTP POST on /users. 
+
+3. web/controllers/user_controller.ex   
+  def create(conn, %{"user" => user_params}) do
+    changeset = User.changeset(%User{}, user_params)
+    Repo.insert(changeset)
+    redirect(conn, to: user_path(conn, :index))
+  end
+  
+  - %User{} : JSON string, is automatically converted into an Elixir map
+  - changeset = User.changeset(%User{}, user_params): user information and validates them (value not null or empty string)
+  - Repo.insert(changeset) : save date in database
+  - redirect(conn, to: user_path(conn, :index)) : redirects the application to index/application will display list of all users
+
+4. add a link in the index page to add new users. 
+  in web/templates/user/index.html.eex add
+  <span><%= link "New user", to: user_path(@conn, :new) %></span>
+
+
+---------------- EDIT USER
+5. rename web/templates/user/new.html.eex to web/templates/user/form.html.eex. 
+  - replace first line of the file with the following one:
+    <%= form_for @changeset, @action, fn user -> %>
+
+6. web/templates/user/new.html.eex and copy there the following :
+
+  <h2>New user</h2>
+  <%= render "form.html", changeset: @changeset, action: user_path(@conn, :create) %>
+  <span><%= link "Back", to: user_path(@conn, :index) %></span>
+
+  - render/2: to embed the template form.html in that place. 
+    * changeset 
+    * sets action to user_path(@conn, :create) 
+7. web/templates/user/edit.html.eex, 
+
+  <h2>Edit user</h2>
+  <%= render "form.html", changeset: @changeset, action: user_path(@conn, :edit) %>
+  <span><%= link "Back", to: user_path(@conn, :index) %></span>
+
+8. web/controllers/user_controller.eex
+
+  def edit(conn, %{"id" => id}) do
+    user = Repo.get!(User, id)
+    changeset = User.changeset(user)
+    render(conn, "edit.html", user: user, changeset: changeset)
+  end
+
+  - user = Repo.get!(User, id) : retreive data 
+  - changeset = User.changeset(user) : initialize a changeset with user
+
+9. web/controllers/user_controler.ex.
+
+  def update(conn, %{"id" => id, "user" => user_params}) do
+    user = Repo.get!(User, id)
+    changeset = User.changeset(user, user_params)
+    Repo.update(changeset)
+    redirect(conn, to: user_path(conn, :index))
+  end
+
+---------HANDLE ERROR
+10. in web/template/form.html.eex
+
+  <%= if @changeset.action do %>
+    <div class="alert alert-danger">
+      <p>Oops, something went wrong! Please check the errors below.</p>
+    </div>
+  <% end %>
+
+  - @changeset.action will be set to something different from null in case a validation error is found in the changeset. 
+
+11. add below, on the group associated to each one of the attributes:
+  <%= error_tag user, :username %>
+
+12. update web/control/user_controler.ex as below:
+
+  def create(conn, %{"user" => user_params}) do
+    changeset = User.changeset(%User{}, user_params)
+
+    case Repo.insert(changeset) do
+      {:ok, user} ->
+        conn
+        |> put_flash(:info, "User created successfully.")
+        |> redirect(to: user_path(conn, :index))
+      {:error, changeset} ->
+        render(conn, "new.html", changeset: changeset)
+    end
+  end
+
+13. web/templates/layout/app.html.eex you will find a block that looks as the one below.
+
+      <p class="alert alert-info" role="alert"><%= get_flash(@conn, :info) %></p>
+      <p class="alert alert-danger" role="alert"><%= get_flash(@conn, :error) %></p>
+
+-------------------SHOWING USER
+14. add below code into web/control/user_controler.ex as below:
+
+  def show(conn, %{"id" => id}) do
+    user = Repo.get!(User, id)
+    render(conn, "show.html", user: user)
+  end
+
+15. web/templates/user/show.html.eex
+
+  <h2>Show user</h2>
+
+  <ul>
+    <li>
+      <strong>Name:</strong>
+      <%= @user.name %>
+    </li>
+
+    <li>
+      <strong>Username:</strong>
+      <%= @user.username %>
+    </li>
+
+    <li>
+      <strong>Password:</strong>
+      <%= @user.password %>
+    </li>
+  </ul>
+
+  <span><%= link "Edit", to: user_path(@conn, :edit, @user) %></span>
+  <span><%= link "Back", to: user_path(@conn, :index) %></span>
+
+  -------------- DELETE User
+  16.  web/control/user_controler.ex 
+
+    def delete(conn, %{"id" => id}) do
+      user = Repo.get!(User, id)
+      Repo.delete!(user)
+
+      conn
+      |> put_flash(:info, "User deleted successfully.")
+      |> redirect(to: user_path(conn, :index))
+    end

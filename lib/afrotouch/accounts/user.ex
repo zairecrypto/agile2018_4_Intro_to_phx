@@ -12,7 +12,7 @@ defmodule Afrotouch.Accounts.User do
   end
 
   @doc false
-  def changeset(user, attrs) do
+  def changeset(user, attrs  \\ %{}) do
     user
     |> cast(attrs, [:name, :username, :password])
     |> validate_required([:password, :username])
