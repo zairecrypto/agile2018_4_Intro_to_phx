@@ -16,3 +16,51 @@ exports.config = {
 }
 
 ==> git add -A && git commit -m "VueJS properly configured with brunchjs"
+
+-----------------------------------
+
+example of implementation
+
+
+3. Open the file called assets/js/app.js and replace its content with the following code.
+
+import Vue from "vue";
+
+import Vue from "vue";
+
+new Vue({
+  el: '#takso-app',
+  data: {
+    pickup_address: "Liivi 2",
+    dropoff_address: ""
+  },
+  methods: {
+    submitBookingRequest: function() {
+      console.log(this.pickup_address, this.dropoff_address);
+    }
+  }
+});
+
+4. Open the file lib/afrotouch_web/templates/page/index.html.eex and replace all code by below
+<div id="takso-app">
+  <div class="form-group">
+    <label class="control-label col-sm-3" for="pickup_address">Pickup address:</label>
+    <div class="col-sm-9">
+      <input type="text" class="form-control" id="pickup_address" v-model="pickup_address">
+    </div>
+  </div>
+  <div class="form-group">
+    <label class="control-label col-sm-3" for="dropoff_address">Drop off address:</label>
+    <div class="col-sm-9">
+      <input type="text" class="form-control" id="dropoff_address" v-model="dropoff_address">
+    </div>
+  </div>
+  <div class="form-group"> 
+    <div class="col-sm-offset-3 col-sm-9">
+      <button class="btn btn-default" v-on:click="submitBookingRequest">Submit</button>
+    </div>
+  </div>
+</div>
+
+5. setting up HTTP-based interactions for REST API (phoenix backend against javascript frontend)
+    - npm install --save axios

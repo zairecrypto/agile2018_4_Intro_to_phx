@@ -1,0 +1,9 @@
+<h1>Bookings</h1>
+
+<ol>
+<%= for booking <- @bookings do %>
+  <li><%= booking.pickup_address %> |
+      <%= booking.dropoff_address %> | 
+  <%= booking.status %></li>
+<% end %>
+</ol>

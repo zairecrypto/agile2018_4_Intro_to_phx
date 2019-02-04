@@ -21,7 +21,8 @@ defmodule AfrotouchWeb.Router do
   end
 
   # Other scopes may use custom stacks.
-  # scope "/api", AfrotouchWeb do
-  #   pipe_through :api
-  # end
+  scope "/api", AfrotouchWeb do
+    pipe_through :api
+    post "/bookings", BookingAPIController, :create
+  end
 end
